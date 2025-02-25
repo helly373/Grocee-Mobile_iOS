@@ -4,10 +4,10 @@ import SwiftUI
 struct GroceryItem: Identifiable {
     let id = UUID()
     let name: String
-    var quantity: String  // Changed to var for editing
+    var quantity: String  // Editable quantity
     let price: String
     let purchasedDate: Date
-    var expiryDate: Date  // Changed to var for editing
+    var expiryDate: Date  // Editable expiry date
 }
 
 // Sample Grocery Data
@@ -26,99 +26,95 @@ struct GroceryListView: View {
     @State private var editedExpiryDate = Date()
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                // Background gradient
-                LinearGradient(
-                    gradient: Gradient(colors: [Color(hex: "F8F9FA"), Color(hex: "E9ECEF")]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
+        ZStack {
+            // Background gradient
+            LinearGradient(
+                gradient: Gradient(colors: [Color(hex: "F8F9FA"), Color(hex: "E9ECEF")]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+            
+            VStack {
+                // Search Bar
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(Color(hex: "0D6EFD"))
+                    TextField("Search groceries...", text: $searchText)
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(12)
+                .padding(.horizontal)
+                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                 
-                VStack {
-                    // Search bar
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(Color(hex: "0D6EFD"))
-                        TextField("Search groceries...", text: $searchText)
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        ForEach($groceries) { $item in
+                            GroceryItemCard(item: item)
+                                .contextMenu {
+                                    Button(action: {
+                                        selectedItem = item
+                                        editedQuantity = item.quantity
+                                        editedExpiryDate = item.expiryDate
+                                        showingEditSheet = true
+                                    }) {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    
+                                    Button(role: .destructive, action: {
+                                        if let index = groceries.firstIndex(where: { $0.id == item.id }) {
+                                            groceries.remove(at: index)
+                                        }
+                                    }) {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                        }
                     }
                     .padding()
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-                    
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            ForEach($groceries) { $item in
-                                GroceryItemCard(item: item)
-                                    .contextMenu {
-                                        Button(action: {
-                                            selectedItem = item
-                                            editedQuantity = item.quantity
-                                            editedExpiryDate = item.expiryDate
-                                            showingEditSheet = true
-                                        }) {
-                                            Label("Edit", systemImage: "pencil")
-                                        }
-                                        
-                                        Button(role: .destructive, action: {
-                                            if let index = groceries.firstIndex(where: { $0.id == item.id }) {
-                                                groceries.remove(at: index)
-                                            }
-                                        }) {
-                                            Label("Delete", systemImage: "trash")
-                                        }
-                                    }
-                            }
-                        }
-                        .padding()
-                    }
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Text("Grocery List")
-                        .font(.title2)
-                        .bold()
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Text("Grocery List")
+                    .font(.title2)
+                    .bold()
+                    .foregroundColor(Color(hex: "0D6EFD"))
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button(action: {
+                        // Sort by name action
+                    }) {
+                        Label("Sort by Name", systemImage: "arrow.up.arrow.down")
+                    }
+                    Button(action: {
+                        // Sort by expiry action
+                    }) {
+                        Label("Sort by Expiry", systemImage: "calendar")
+                    }
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
                         .foregroundColor(Color(hex: "0D6EFD"))
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Button(action: {
-                            // Sort by name
-                        }) {
-                            Label("Sort by Name", systemImage: "arrow.up.arrow.down")
-                        }
-                        
-                        Button(action: {
-                            // Sort by expiry
-                        }) {
-                            Label("Sort by Expiry", systemImage: "calendar")
-                        }
-                    } label: {
-                        Image(systemName: "slider.horizontal.3")
-                            .foregroundColor(Color(hex: "0D6EFD"))
+            }
+        }
+        .sheet(isPresented: $showingEditSheet) {
+            EditGrocerySheet(
+                item: selectedItem,
+                quantity: $editedQuantity,
+                expiryDate: $editedExpiryDate,
+                onSave: { quantity, expiryDate in
+                    if let index = groceries.firstIndex(where: { $0.id == selectedItem?.id }) {
+                        groceries[index].quantity = quantity
+                        groceries[index].expiryDate = expiryDate
                     }
+                    showingEditSheet = false
                 }
-            }
-            .sheet(isPresented: $showingEditSheet) {
-                EditGrocerySheet(
-                    item: selectedItem,
-                    quantity: $editedQuantity,
-                    expiryDate: $editedExpiryDate,
-                    onSave: { quantity, expiryDate in
-                        if let index = groceries.firstIndex(where: { $0.id == selectedItem?.id }) {
-                            groceries[index].quantity = quantity
-                            groceries[index].expiryDate = expiryDate
-                        }
-                        showingEditSheet = false
-                    }
-                )
-            }
+            )
         }
     }
 }
@@ -136,18 +132,13 @@ struct EditGrocerySheet: View {
                 Section(header: Text("Edit Details")) {
                     TextField("Quantity", text: $quantity)
                         .keyboardType(.numberPad)
-                    
                     DatePicker("Expiry Date", selection: $expiryDate, displayedComponents: .date)
                 }
             }
             .navigationTitle("Edit \(item?.name ?? "Item")")
             .navigationBarItems(
-                leading: Button("Cancel") {
-                    dismiss()
-                },
-                trailing: Button("Save") {
-                    onSave(quantity, expiryDate)
-                }
+                leading: Button("Cancel") { dismiss() },
+                trailing: Button("Save") { onSave(quantity, expiryDate) }
             )
         }
     }
@@ -167,35 +158,20 @@ struct GroceryItemCard: View {
                         .font(.title3)
                         .fontWeight(.semibold)
                 }
-                
                 Spacer()
-                
                 Text(item.price)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundColor(Color(hex: "0D6EFD"))
             }
-            
             Divider()
-            
-            // Quantity and dates
+            // Quantity and date information
             VStack(spacing: 8) {
                 HStack {
-                    ItemInfoView(
-                        icon: "number.circle.fill",
-                        title: "Quantity",
-                        value: item.quantity
-                    )
-                    
+                    ItemInfoView(icon: "number.circle.fill", title: "Quantity", value: item.quantity)
                     Spacer()
-                    
-                    ItemInfoView(
-                        icon: "calendar.circle.fill",
-                        title: "Purchased",
-                        value: formattedDate(item.purchasedDate)
-                    )
+                    ItemInfoView(icon: "calendar.circle.fill", title: "Purchased", value: formattedDate(item.purchasedDate))
                 }
-                
                 HStack {
                     Spacer()
                     ItemInfoView(
@@ -235,7 +211,6 @@ struct ItemInfoView: View {
         HStack(spacing: 8) {
             Image(systemName: icon)
                 .foregroundColor(Color(hex: "0D6EFD"))
-            
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.caption)
@@ -248,9 +223,10 @@ struct ItemInfoView: View {
     }
 }
 
-// Preview
 struct GroceryListView_Previews: PreviewProvider {
     static var previews: some View {
-        GroceryListView()
+        NavigationStack {
+            GroceryListView()
+        }
     }
 }

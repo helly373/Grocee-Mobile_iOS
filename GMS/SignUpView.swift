@@ -8,112 +8,126 @@ struct SignUpView: View {
     @State private var confirmPassword = ""
     @State private var showPassword = false
     @State private var showConfirmPassword = false
+    @State private var navigateToHome = false  // For successful account creation
+    @State private var navigateToLogin = false // For "Sign In" navigation
     
     var body: some View {
-         NavigationStack {
-             ZStack {
-                 // Background gradient stays the same
-                 LinearGradient(
-                     gradient: Gradient(colors: [Color(hex: "F8F9FA"), Color(hex: "E9ECEF")]),
-                     startPoint: .top,
-                     endPoint: .bottom
-                 )
-                 .ignoresSafeArea()
-                 
-                 // Remove ScrollView since we want it to fit without scrolling
-                 VStack(spacing: 20) { // Reduced from 32
-                     // Logo Section with reduced spacing
-                     VStack(spacing: 8) { // Reduced from 16
-                         // Grocery Cart Logo with smaller size
-                         ZStack {
-                             Circle()
-                                 .fill(Color(hex: "198754").opacity(0.1))
-                                 .frame(width: 80, height: 80) // Reduced from 120
-                             
-                             Image(systemName: "cart.circle.fill")
-                                 .resizable()
-                                 .scaledToFit()
-                                 .frame(width: 50, height: 50) // Reduced from 80
-                                 .foregroundColor(Color(hex: "198754"))
-                         }
+         ZStack {
+             // Background gradient
+             LinearGradient(
+                 gradient: Gradient(colors: [Color(hex: "F8F9FA"), Color(hex: "E9ECEF")]),
+                 startPoint: .top,
+                 endPoint: .bottom
+             )
+             .ignoresSafeArea()
+             
+             VStack(spacing: 20) {
+                 // Logo Section
+                 VStack(spacing: 8) {
+                     ZStack {
+                         Circle()
+                             .fill(Color(hex: "198754").opacity(0.1))
+                             .frame(width: 80, height: 80)
                          
-                         Text("Grocee")
-                             .font(.system(size: 28, weight: .bold)) // Reduced from 32
+                         Image(systemName: "cart.circle.fill")
+                             .resizable()
+                             .scaledToFit()
+                             .frame(width: 50, height: 50)
                              .foregroundColor(Color(hex: "198754"))
-                         
-                         Text("Create your account")
-                             .font(.subheadline) // Changed from title3
-                             .foregroundColor(.gray)
                      }
                      
-                     // Sign Up Form with reduced spacing
-                     VStack(spacing: 12) { // Reduced from 20
-                         SignUpTextField(
-                             title: "Username",
-                             icon: "person.fill", text: $username
-                         )
-                         
-                         SignUpTextField(
-                             title: "Full Name",
-                             icon: "person.text.rectangle.fill", text: $fullName
-                         )
-                         
-                         SignUpTextField(
-                             title: "Email",
-                             icon: "envelope.fill", text: $email,
-                             keyboardType: .emailAddress
-                         )
-                         
-                         SignUpPasswordField(
-                             title: "Password",
-                             text: $password,
-                             showPassword: $showPassword
-                         )
-                         
-                         SignUpPasswordField(
-                             title: "Confirm Password",
-                             text: $confirmPassword,
-                             showPassword: $showConfirmPassword
-                         )
-                         
-                         // Sign Up Button
-                         Button(action: {
-                             // Sign up action
-                         }) {
-                             HStack {
-                                 Image(systemName: "person.badge.plus.fill")
-                                 Text("Create Account")
-                                     .font(.headline) // Changed from title3
-                                     .fontWeight(.semibold)
-                             }
-                             .frame(maxWidth: .infinity)
-                             .padding(.vertical, 12) // Reduced padding
-                             .background(Color(hex: "198754"))
-                             .foregroundColor(.white)
-                             .cornerRadius(12)
-                             .shadow(color: Color(hex: "198754").opacity(0.3), radius: 5, x: 0, y: 3)
-                         }
-                         
-                         // Sign In Link
-                         HStack {
-                             Text("Already have an account?")
-                                 .foregroundColor(.gray)
-                             Button("Sign In") {
-                                 // Navigate to sign in
-                             }
-                             .foregroundColor(Color(hex: "198754"))
-                             .fontWeight(.semibold)
-                         }
-                         .padding(.top, 4) // Reduced from 8
-                     }
+                     Text("Grocee")
+                         .font(.system(size: 28, weight: .bold))
+                         .foregroundColor(Color(hex: "198754"))
+                     
+                     Text("Create your account")
+                         .font(.subheadline)
+                         .foregroundColor(.gray)
                  }
-                 .padding(16) // Reduced from 24
+                 
+                 // Sign Up Form
+                 VStack(spacing: 12) {
+                     SignUpTextField(
+                         title: "Username",
+                         icon: "person.fill", text: $username
+                     )
+                     
+                     SignUpTextField(
+                         title: "Full Name",
+                         icon: "person.text.rectangle.fill", text: $fullName
+                     )
+                     
+                     SignUpTextField(
+                         title: "Email",
+                         icon: "envelope.fill", text: $email,
+                         keyboardType: .emailAddress
+                     )
+                     
+                     SignUpPasswordField(
+                         title: "Password",
+                         text: $password,
+                         showPassword: $showPassword
+                     )
+                     
+                     SignUpPasswordField(
+                         title: "Confirm Password",
+                         text: $confirmPassword,
+                         showPassword: $showConfirmPassword
+                     )
+                     
+                     // Create Account Button
+                     Button(action: {
+                         // Simulate a successful account creation
+                         navigateToHome = true
+                     }) {
+                         HStack {
+                             Image(systemName: "person.badge.plus.fill")
+                             Text("Create Account")
+                                 .font(.headline)
+                                 .fontWeight(.semibold)
+                         }
+                         .frame(maxWidth: .infinity)
+                         .padding(.vertical, 12)
+                         .background(Color(hex: "198754"))
+                         .foregroundColor(.white)
+                         .cornerRadius(12)
+                         .shadow(color: Color(hex: "198754").opacity(0.3), radius: 5, x: 0, y: 3)
+                     }
+                     
+                     // Sign In Link
+                     HStack {
+                         Text("Already have an account?")
+                             .foregroundColor(.gray)
+                         Button("Sign In") {
+                             // Instead of dismissing, navigate to LoginView
+                             navigateToLogin = true
+                         }
+                         .foregroundColor(Color(hex: "198754"))
+                         .fontWeight(.semibold)
+                     }
+                     .padding(.top, 4)
+                 }
              }
+             .padding(16)
          }
-     }
- }
+         .navigationTitle("Sign Up")
+         .navigationBarTitleDisplayMode(.inline)
+         // NavigationLink for programmatic navigation to HomePageView (after account creation)
+         .background(
+             NavigationLink(destination: HomePageView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) {
+                 EmptyView()
+             }
+         )
+         // NavigationLink for programmatic navigation to LoginView (when "Sign In" tapped)
+         .background(
+             NavigationLink(destination: LoginView().navigationBarBackButtonHidden(true), isActive: $navigateToLogin) {
+                 EmptyView()
+             }
+         )
+    }
+}
 
-// Renamed TextField component for SignUp
+// Custom TextField for Sign Up
 struct SignUpTextField: View {
     let title: String
     let icon: String
@@ -145,7 +159,7 @@ struct SignUpTextField: View {
     }
 }
 
-// Renamed PasswordField component for SignUp
+// Custom Password Field for Sign Up
 struct SignUpPasswordField: View {
     let title: String
     @Binding var text: String
@@ -188,6 +202,8 @@ struct SignUpPasswordField: View {
 
 struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {
-        SignUpView()
+        NavigationStack {
+            SignUpView()
+        }
     }
 }
