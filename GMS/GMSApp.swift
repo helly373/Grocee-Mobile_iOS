@@ -12,14 +12,15 @@ struct GMSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NavigationStack {  // ✅ Wrap inside NavigationStack
-                if isLoggedIn {
-                    HomePageView()
-                } else {
+            // Remove the outer NavigationStack here
+            if isLoggedIn {
+                MainTabView()   // <-- Each tab has its own NavigationStack
+            } else {
+                // If you want the LandingView to have a nav bar, you can wrap only it in a NavigationStack
+                NavigationStack {
                     LandingView()
                 }
             }
         }
     }
 }
-
