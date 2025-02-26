@@ -12,17 +12,14 @@ struct GMSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
+            NavigationStack {  // ✅ Wrap inside NavigationStack
                 if isLoggedIn {
                     HomePageView()
                 } else {
-                    LandingView()  // This is your landing screen
+                    LandingView()
                 }
             }
-            .id(isLoggedIn) // Forces a rebuild of the NavigationStack when isLoggedIn changes.
-
         }
     }
-    
-
 }
+

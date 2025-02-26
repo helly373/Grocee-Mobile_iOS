@@ -6,7 +6,8 @@ struct LoginView: View {
     @State private var showPassword = false
     @State private var navigateToHome = false
     @State private var navigateToSignUp = false
-    
+    @AppStorage("isLoggedIn") private var isLoggedIn: Bool = false  // Ensure this is here
+
     var body: some View {
         ZStack {
             // Background gradient
@@ -67,10 +68,12 @@ struct LoginView: View {
                             .font(.subheadline)
                         }
                         
-                        // Login Button
+                        // Login Button with @AppStorage
                         Button(action: {
-                            // Simulate a successful login
+                            // Simulate successful login
+                            isLoggedIn = true  // Set AppStorage to true
                             navigateToHome = true
+                            print("Logging in... isLoggedIn set to true") // Debug print
                         }) {
                             HStack {
                                 Image(systemName: "arrow.right.circle.fill")
@@ -105,7 +108,8 @@ struct LoginView: View {
         }
         .navigationTitle("Login")
         .navigationBarTitleDisplayMode(.inline)
-        // Programmatic NavigationLinks (invisible)
+        
+        // Programmatic NavigationLinks
         .background(
             NavigationLink(destination: HomePageView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) {
                 EmptyView()
@@ -118,6 +122,8 @@ struct LoginView: View {
         )
     }
 }
+
+
 
 // Custom TextField for Login
 struct LoginTextField: View {
