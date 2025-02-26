@@ -193,4 +193,3 @@ struct SignUpView_Previews: PreviewProvider {
         }
     }
 }
-
