@@ -8,122 +8,102 @@ struct SignUpView: View {
     @State private var confirmPassword = ""
     @State private var showPassword = false
     @State private var showConfirmPassword = false
-    @State private var navigateToHome = false  // For successful account creation
-    @State private var navigateToLogin = false // For "Sign In" navigation
-    
+    @State private var navigateToHome = false
+    @State private var navigateToLogin = false
+    @State private var navigateToForgotPassword = false
+
     var body: some View {
-         ZStack {
-             // Background gradient
-             LinearGradient(
-                 gradient: Gradient(colors: [Color(hex: "F8F9FA"), Color(hex: "E9ECEF")]),
-                 startPoint: .top,
-                 endPoint: .bottom
-             )
-             .ignoresSafeArea()
-             
-             VStack(spacing: 20) {
-                 // Logo Section
-                 VStack(spacing: 8) {
-                     ZStack {
-                         Circle()
-                             .fill(Color(hex: "198754").opacity(0.1))
-                             .frame(width: 80, height: 80)
-                         
-                         Image(systemName: "cart.circle.fill")
-                             .resizable()
-                             .scaledToFit()
-                             .frame(width: 50, height: 50)
-                             .foregroundColor(Color(hex: "198754"))
-                     }
-                     
-                     Text("Grocee")
-                         .font(.system(size: 28, weight: .bold))
-                         .foregroundColor(Color(hex: "198754"))
-                     
-                     Text("Create your account")
-                         .font(.subheadline)
-                         .foregroundColor(.gray)
-                 }
-                 
-                 // Sign Up Form
-                 VStack(spacing: 12) {
-                     SignUpTextField(
-                         title: "Username",
-                         icon: "person.fill", text: $username
-                     )
-                     
-                     SignUpTextField(
-                         title: "Full Name",
-                         icon: "person.text.rectangle.fill", text: $fullName
-                     )
-                     
-                     SignUpTextField(
-                         title: "Email",
-                         icon: "envelope.fill", text: $email,
-                         keyboardType: .emailAddress
-                     )
-                     
-                     SignUpPasswordField(
-                         title: "Password",
-                         text: $password,
-                         showPassword: $showPassword
-                     )
-                     
-                     SignUpPasswordField(
-                         title: "Confirm Password",
-                         text: $confirmPassword,
-                         showPassword: $showConfirmPassword
-                     )
-                     
-                     // Create Account Button
-                     Button(action: {
-                         // Simulate a successful account creation
-                         navigateToHome = true
-                     }) {
-                         HStack {
-                             Image(systemName: "person.badge.plus.fill")
-                             Text("Create Account")
-                                 .font(.headline)
-                                 .fontWeight(.semibold)
-                         }
-                         .frame(maxWidth: .infinity)
-                         .padding(.vertical, 12)
-                         .background(Color(hex: "198754"))
-                         .foregroundColor(.white)
-                         .cornerRadius(12)
-                         .shadow(color: Color(hex: "198754").opacity(0.3), radius: 5, x: 0, y: 3)
-                     }
-                     
-                     // Sign In Link
-                     HStack {
-                         Text("Already have an account?")
-                             .foregroundColor(.gray)
-                         Button("Sign In") {
-                             // Instead of dismissing, navigate to LoginView
-                             navigateToLogin = true
-                         }
-                         .foregroundColor(Color(hex: "198754"))
-                         .fontWeight(.semibold)
-                     }
-                     .padding(.top, 4)
-                 }
-             }
-             .padding(16)
-         }
-         .navigationTitle("Sign Up")
-         .navigationBarTitleDisplayMode(.inline)
-         // NavigationLink for programmatic navigation to HomePageView (after account creation)
-         .background(
-             NavigationLink(destination: HomePageView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) {
-                 EmptyView()
-             }
-         )
-         // NavigationLink for programmatic navigation to LoginView (when "Sign In" tapped)
-         .background(
-             NavigationLink(destination: LoginView().navigationBarBackButtonHidden(true), isActive: $navigateToLogin) {
-                 EmptyView()
-             }
-         )
+        ZStack {
+            // Background gradient
+            LinearGradient(
+                gradient: Gradient(colors: [Color(hex: "F8F9FA"), Color(hex: "E9ECEF")]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 20) {
+                // Logo Section
+                VStack(spacing: 8) {
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "198754").opacity(0.1))
+                            .frame(width: 80, height: 80)
+                        
+                        Image(systemName: "cart.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                            .foregroundColor(Color(hex: "198754"))
+                    }
+                    
+                    Text("Grocee")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(Color(hex: "198754"))
+                    
+                    Text("Create your account")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+                
+                // Sign Up Form
+                VStack(spacing: 12) {
+                    SignUpTextField(title: "Username", icon: "person.fill", text: $username)
+                    SignUpTextField(title: "Full Name", icon: "person.text.rectangle.fill", text: $fullName)
+                    SignUpTextField(title: "Email", icon: "envelope.fill", text: $email, keyboardType: .emailAddress)
+                    SignUpPasswordField(title: "Password", text: $password, showPassword: $showPassword)
+                    SignUpPasswordField(title: "Confirm Password", text: $confirmPassword, showPassword: $showConfirmPassword)
+
+                    // Forgot Password Link
+                    Button(action: {
+                        navigateToForgotPassword = true
+                    }) {
+                        Text("Forgot Password?")
+                            .foregroundColor(Color(hex: "198754"))
+                            .font(.subheadline)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    
+                    // Create Account Button
+                    Button(action: {
+                        navigateToHome = true
+                    }) {
+                        HStack {
+                            Image(systemName: "person.badge.plus.fill")
+                            Text("Create Account")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color(hex: "198754"))
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                        .shadow(color: Color(hex: "198754").opacity(0.3), radius: 5, x: 0, y: 3)
+                    }
+                    
+                    // Sign In Link
+                    HStack {
+                        Text("Already have an account?")
+                            .foregroundColor(.gray)
+                        Button("Sign In") {
+                            navigateToLogin = true
+                        }
+                        .foregroundColor(Color(hex: "198754"))
+                        .fontWeight(.semibold)
+                    }
+                    .padding(.top, 4)
+                    
+                    // Navigation Links (Hidden)
+                    NavigationLink(destination: HomePageView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) { EmptyView() }
+                    NavigationLink(destination: LoginView().navigationBarBackButtonHidden(true), isActive: $navigateToLogin) { EmptyView() }
+                    NavigationLink(destination: ForgotPasswordView().navigationBarBackButtonHidden(true), isActive: $navigateToForgotPassword) { EmptyView() }
+                }
+            }
+            .padding(16)
+        }
+        .navigationTitle("Sign Up")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -136,10 +116,7 @@ struct SignUpTextField: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .foregroundColor(.gray)
-                .font(.subheadline)
-            
+            Text(title).foregroundColor(.gray).font(.subheadline)
             HStack {
                 Image(systemName: icon)
                     .foregroundColor(Color(hex: "198754"))
@@ -200,6 +177,15 @@ struct SignUpPasswordField: View {
     }
 }
 
+// Placeholder for Forgot Password View
+struct ForgotPasswordView: View {
+    var body: some View {
+        Text("Forgot Password Page")
+            .navigationTitle("Reset Password")
+    }
+}
+
+// Preview
 struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
@@ -207,3 +193,4 @@ struct SignUpView_Previews: PreviewProvider {
         }
     }
 }
+

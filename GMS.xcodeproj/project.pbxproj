@@ -10,7 +10,6 @@
 		3AF165B22D6D454500177111 /* LandingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF165B12D6D454500177111 /* LandingView.swift */; };
 		3AF165B42D6D467F00177111 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF165B32D6D467F00177111 /* Color+Hex.swift */; };
 		F325D4D82D5FE02900360CD4 /* GMSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F325D4D72D5FE02900360CD4 /* GMSApp.swift */; };
-		F325D4DA2D5FE02900360CD4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F325D4D92D5FE02900360CD4 /* ContentView.swift */; };
 		F325D4DC2D5FE02A00360CD4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F325D4DB2D5FE02A00360CD4 /* Assets.xcassets */; };
 		F325D4DF2D5FE02A00360CD4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F325D4DE2D5FE02A00360CD4 /* Preview Assets.xcassets */; };
 		F325D4E92D5FE02A00360CD4 /* GMSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F325D4E82D5FE02A00360CD4 /* GMSTests.swift */; };
@@ -47,7 +46,6 @@
 		3AF165B32D6D467F00177111 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		F325D4D42D5FE02900360CD4 /* GMS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GMS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F325D4D72D5FE02900360CD4 /* GMSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GMSApp.swift; sourceTree = "<group>"; };
-		F325D4D92D5FE02900360CD4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F325D4DB2D5FE02A00360CD4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F325D4DE2D5FE02A00360CD4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		F325D4E42D5FE02A00360CD4 /* GMSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GMSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -113,7 +111,6 @@
 			isa = PBXGroup;
 			children = (
 				F325D4D72D5FE02900360CD4 /* GMSApp.swift */,
-				F325D4D92D5FE02900360CD4 /* ContentView.swift */,
 				F325D4DB2D5FE02A00360CD4 /* Assets.xcassets */,
 				F325D4DD2D5FE02A00360CD4 /* Preview Content */,
 				F325D5012D5FE14700360CD4 /* SignUpView.swift */,
@@ -284,7 +281,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F325D4DA2D5FE02900360CD4 /* ContentView.swift in Sources */,
 				F325D50E2D5FEE0F00360CD4 /* ProfileView.swift in Sources */,
 				F325D5022D5FE14700360CD4 /* SignUpView.swift in Sources */,
 				F325D5082D5FEA8B00360CD4 /* AddGroceryView.swift in Sources */,
