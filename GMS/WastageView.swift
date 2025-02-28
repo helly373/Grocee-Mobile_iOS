@@ -29,23 +29,6 @@ struct WastageView: View {
                     }
                     .padding()
                 }
-
-                // Go Back button at bottom
-                Button(action: {
-                    dismiss()
-                }) {
-                    HStack {
-                        Image(systemName: "chevron.left.circle.fill")
-                        Text("Go Back")
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(hex: "198754"))
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-                    .shadow(color: Color(hex: "198754").opacity(0.3), radius: 5, x: 0, y: 3)
-                }
-                .padding()
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -150,6 +133,19 @@ struct WastageItemCard: View {
                     Spacer()
                 }
                 .font(.subheadline)
+                
+                HStack {
+                    Label {
+                        Text(item.expiryDate)
+                            .foregroundColor(.gray)
+                    } icon: {
+                        Image(systemName: "calendar.badge.clock")
+                            .foregroundColor(Color(hex: "DC3545"))
+                    }
+                    
+                    Spacer()
+                }
+                .font(.subheadline)
             }
         }
         .padding()
@@ -164,13 +160,14 @@ struct WastageItem: Identifiable {
     let id = UUID()
     let name: String
     let amount: String  // e.g., "2 kg", "3 packs", etc.
+    let expiryDate: String  // Added expiry date field
 }
 
 let sampleWastageItems = [
-    WastageItem(name: "Rotten Apples", amount: "2 kg"),
-    WastageItem(name: "Spoiled Milk", amount: "1 bottle"),
-    WastageItem(name: "Moldy Bread", amount: "1 loaf"),
-    WastageItem(name: "Expired Yogurt", amount: "3 packs")
+    WastageItem(name: "Rotten Apples", amount: "2 kg", expiryDate: "Feb 24, 2025"),
+    WastageItem(name: "Spoiled Milk", amount: "1 bottle", expiryDate: "Feb 20, 2025"),
+    WastageItem(name: "Moldy Bread", amount: "1 loaf", expiryDate: "Feb 22, 2025"),
+    WastageItem(name: "Expired Yogurt", amount: "3 packs", expiryDate: "Feb 25, 2025")
 ]
 
 struct WastageView_Previews: PreviewProvider {
