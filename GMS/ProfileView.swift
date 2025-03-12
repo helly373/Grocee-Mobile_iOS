@@ -28,6 +28,11 @@ struct ProfileView: View {
         }
     }
     
+    
+    
+    
+    
+    
     var body: some View {
         ZStack {
             LinearGradient(

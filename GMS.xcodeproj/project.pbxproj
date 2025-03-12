@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3AF165B22D6D454500177111 /* LandingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF165B12D6D454500177111 /* LandingView.swift */; };
 		3AF165B42D6D467F00177111 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF165B32D6D467F00177111 /* Color+Hex.swift */; };
+		BCA863532D822E0E00051CA5 /* GMS.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BCA863512D822E0E00051CA5 /* GMS.xcdatamodeld */; };
 		F325D4D82D5FE02900360CD4 /* GMSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F325D4D72D5FE02900360CD4 /* GMSApp.swift */; };
 		F325D4DC2D5FE02A00360CD4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F325D4DB2D5FE02A00360CD4 /* Assets.xcassets */; };
 		F325D4DF2D5FE02A00360CD4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F325D4DE2D5FE02A00360CD4 /* Preview Assets.xcassets */; };
@@ -23,10 +24,7 @@
 		F325D50C2D5FED3200360CD4 /* WastageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F325D50B2D5FED3200360CD4 /* WastageView.swift */; };
 		F325D50E2D5FEE0F00360CD4 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F325D50D2D5FEE0F00360CD4 /* ProfileView.swift */; };
 		F35D83CB2D81FD9500B4D1DE /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F35D83CA2D81FD9500B4D1DE /* CoreData.framework */; };
-		F35D83CF2D81FE4600B4D1DE /* GMS.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F35D83CD2D81FE4600B4D1DE /* GMS.xcdatamodeld */; };
 		F35D83D12D8203C100B4D1DE /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35D83D02D8203C100B4D1DE /* CoreDataManager.swift */; };
-		F35D83D42D820BD100B4D1DE /* User+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35D83D22D820BD100B4D1DE /* User+CoreDataClass.swift */; };
-		F35D83D52D820BD100B4D1DE /* User+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35D83D32D820BD100B4D1DE /* User+CoreDataProperties.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +47,8 @@
 /* Begin PBXFileReference section */
 		3AF165B12D6D454500177111 /* LandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingView.swift; sourceTree = "<group>"; };
 		3AF165B32D6D467F00177111 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
+		BCA863522D822E0E00051CA5 /* GMS.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = GMS.xcdatamodel; sourceTree = "<group>"; };
+		BCA863542D8231EF00051CA5 /* GMS 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "GMS 2.xcdatamodel"; sourceTree = "<group>"; };
 		F325D4D42D5FE02900360CD4 /* GMS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GMS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F325D4D72D5FE02900360CD4 /* GMSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GMSApp.swift; sourceTree = "<group>"; };
 		F325D4DB2D5FE02A00360CD4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -66,10 +66,7 @@
 		F325D50B2D5FED3200360CD4 /* WastageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WastageView.swift; sourceTree = "<group>"; };
 		F325D50D2D5FEE0F00360CD4 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		F35D83CA2D81FD9500B4D1DE /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		F35D83CE2D81FE4600B4D1DE /* GMS.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = GMS.xcdatamodel; sourceTree = "<group>"; };
 		F35D83D02D8203C100B4D1DE /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
-		F35D83D22D820BD100B4D1DE /* User+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		F35D83D32D820BD100B4D1DE /* User+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,9 +172,7 @@
 		F35D83CC2D81FE1400B4D1DE /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
-				F35D83D22D820BD100B4D1DE /* User+CoreDataClass.swift */,
-				F35D83D32D820BD100B4D1DE /* User+CoreDataProperties.swift */,
-				F35D83CD2D81FE4600B4D1DE /* GMS.xcdatamodeld */,
+				BCA863512D822E0E00051CA5 /* GMS.xcdatamodeld */,
 				F35D83D02D8203C100B4D1DE /* CoreDataManager.swift */,
 			);
 			path = CoreData;
@@ -318,14 +313,12 @@
 				F325D5082D5FEA8B00360CD4 /* AddGroceryView.swift in Sources */,
 				F325D50C2D5FED3200360CD4 /* WastageView.swift in Sources */,
 				F325D5042D5FE5E100360CD4 /* LoginView.swift in Sources */,
-				F35D83D42D820BD100B4D1DE /* User+CoreDataClass.swift in Sources */,
-				F35D83D52D820BD100B4D1DE /* User+CoreDataProperties.swift in Sources */,
 				3AF165B22D6D454500177111 /* LandingView.swift in Sources */,
 				F35D83D12D8203C100B4D1DE /* CoreDataManager.swift in Sources */,
+				BCA863532D822E0E00051CA5 /* GMS.xcdatamodeld in Sources */,
 				F325D5062D5FE83500360CD4 /* HomeView.swift in Sources */,
 				F325D50A2D5FEC1800360CD4 /* LIstGroceryView.swift in Sources */,
 				3AF165B42D6D467F00177111 /* Color+Hex.swift in Sources */,
-				F35D83CF2D81FE4600B4D1DE /* GMS.xcdatamodeld in Sources */,
 				F325D4D82D5FE02900360CD4 /* GMSApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -654,14 +647,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		F35D83CD2D81FE4600B4D1DE /* GMS.xcdatamodeld */ = {
+		BCA863512D822E0E00051CA5 /* GMS.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				F35D83CE2D81FE4600B4D1DE /* GMS.xcdatamodel */,
+				BCA863542D8231EF00051CA5 /* GMS 2.xcdatamodel */,
+				BCA863522D822E0E00051CA5 /* GMS.xcdatamodel */,
 			);
-			currentVersion = F35D83CE2D81FE4600B4D1DE /* GMS.xcdatamodel */;
-			name = GMS.xcdatamodeld;
-			path = "/Users/101414910/Desktop/Grocee-Mobile_iOS/GMS/CoreData/GMS.xcdatamodeld";
+			currentVersion = BCA863522D822E0E00051CA5 /* GMS.xcdatamodel */;
+			path = GMS.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
