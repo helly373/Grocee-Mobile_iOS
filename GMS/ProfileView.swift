@@ -2,20 +2,34 @@ import SwiftUI
 
 struct ProfileView: View {
     @AppStorage("isLoggedIn") private var isLoggedIn: Bool = false
-    @Environment(\.dismiss) private var dismiss  // ✅ Add this to enable back navigation
-    @State private var username = "JaneDoe123"
-    @State private var fullName = "Jane Doe"
-    @State private var email = "janedoe@email.com"
-    @State private var password = "password123"
+    @Environment(\.dismiss) private var dismiss
+    @State private var username = ""
+    @State private var fullName = ""
+    @State private var email = ""
+    @State private var password = ""
     @State private var selectedDiet = "None"
     @State private var showingLogoutAlert = false
-    @State private var navigateToLanding = false  // State for navigation
+    @State private var navigateToLanding = false
+    @State private var showingSaveConfirmation = false
     
     let dietOptions = ["None", "Vegetarian", "Vegan", "Keto", "Paleo", "Gluten-Free"]
+    
+    @StateObject private var coreDataManager = CoreDataManager.shared
+    private var user: User?
 
+    init() {
+        if let fetchedUser = CoreDataManager.shared.fetchCurrentUser() {
+            _username = State(initialValue: fetchedUser.username ?? "")
+            _fullName = State(initialValue: fetchedUser.fullName ?? "")
+            _email = State(initialValue: fetchedUser.email ?? "")
+            _password = State(initialValue: fetchedUser.password ?? "")
+            _selectedDiet = State(initialValue: fetchedUser.dietPreference ?? "None")
+            user = fetchedUser
+        }
+    }
+    
     var body: some View {
         ZStack {
-            // Background gradient
             LinearGradient(
                 gradient: Gradient(colors: [Color(hex: "F8F9FA"), Color(hex: "E9ECEF")]),
                 startPoint: .top,
@@ -25,10 +39,8 @@ struct ProfileView: View {
 
             ScrollView {
                 VStack(spacing: 24) {
-                    // Profile Header
                     ProfileHeader(fullName: fullName, username: username)
 
-                    // Profile Info Section
                     VStack(spacing: 20) {
                         ProfileSection(title: "Personal Information") {
                             CustomTextField(title: "Username", icon: "person.circle.fill", text: $username)
@@ -41,9 +53,8 @@ struct ProfileView: View {
                             CustomPicker(title: "Select Diet", selection: $selectedDiet, options: dietOptions, icon: "leaf.fill")
                         }
 
-                        // Action Buttons
                         VStack(spacing: 16) {
-                            Button(action: { /* Save changes action */ }) {
+                            Button(action: saveProfile) {
                                 HStack {
                                     Image(systemName: "square.and.arrow.down.fill")
                                     Text("Save Changes")
@@ -55,8 +66,12 @@ struct ProfileView: View {
                                 .cornerRadius(12)
                                 .shadow(color: Color(hex: "198754").opacity(0.3), radius: 5, x: 0, y: 3)
                             }
+                            .alert("Profile Updated", isPresented: $showingSaveConfirmation) {
+                                Button("OK", role: .cancel) { }
+                            } message: {
+                                Text("Your profile has been successfully updated.")
+                            }
 
-                            // ✅ Logout Button
                             Button(action: {
                                 showingLogoutAlert = true
                             }) {
@@ -80,36 +95,47 @@ struct ProfileView: View {
         .alert("Sign Out", isPresented: $showingLogoutAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Sign Out", role: .destructive) {
-                isLoggedIn = false  // ✅ Reset login state
-                navigateToLanding = true  // ✅ Navigate to LandingView
-                print("User logged out. isLoggedIn = \(isLoggedIn)")  // Debugging print
+                isLoggedIn = false
+                navigateToLanding = true
+                print("User logged out. isLoggedIn = \(isLoggedIn)")
             }
         } message: {
             Text("Are you sure you want to sign out?")
-        }
-        .navigationBarTitle("Profile", displayMode: .inline)  // ✅ Set the title
-        .navigationBarBackButtonHidden(true)  // ✅ Hides the default back button
-        .toolbar {
-            // ✅ Custom Back Button to go back to HomePageView
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()  // ✅ Goes back to HomePageView
-                }) {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                        Text("Back")
-                    }
-                }
-            }
         }
         .background(
             NavigationLink(destination: LandingView().navigationBarBackButtonHidden(true), isActive: $navigateToLanding) {
                 EmptyView()
             }
         )
+        .navigationBarTitle("Profile", displayMode: .inline)
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarLeading) {
+//                Button(action: { dismiss() }) {
+//                    HStack {
+//                        Image(systemName: "chevron.left")
+//                        Text("Back")
+//                    }
+//                }
+//            }
+//        }
+    }
+
+    func saveProfile() {
+        guard let user = user else { return }
+        let success = coreDataManager.updateUserProfile(
+            user: user,
+            username: username,
+            fullName: fullName,
+            email: email,
+            password: password,
+            dietPreference: selectedDiet
+        )
+
+        if success {
+            showingSaveConfirmation = true
+        }
     }
 }
-
 
 
 // Subviews used in ProfileView remain unchanged

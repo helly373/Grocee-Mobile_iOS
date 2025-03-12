@@ -22,6 +22,11 @@
 		F325D50A2D5FEC1800360CD4 /* LIstGroceryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F325D5092D5FEC1800360CD4 /* LIstGroceryView.swift */; };
 		F325D50C2D5FED3200360CD4 /* WastageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F325D50B2D5FED3200360CD4 /* WastageView.swift */; };
 		F325D50E2D5FEE0F00360CD4 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F325D50D2D5FEE0F00360CD4 /* ProfileView.swift */; };
+		F35D83CB2D81FD9500B4D1DE /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F35D83CA2D81FD9500B4D1DE /* CoreData.framework */; };
+		F35D83CF2D81FE4600B4D1DE /* GMS.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F35D83CD2D81FE4600B4D1DE /* GMS.xcdatamodeld */; };
+		F35D83D12D8203C100B4D1DE /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35D83D02D8203C100B4D1DE /* CoreDataManager.swift */; };
+		F35D83D42D820BD100B4D1DE /* User+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35D83D22D820BD100B4D1DE /* User+CoreDataClass.swift */; };
+		F35D83D52D820BD100B4D1DE /* User+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35D83D32D820BD100B4D1DE /* User+CoreDataProperties.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +65,11 @@
 		F325D5092D5FEC1800360CD4 /* LIstGroceryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LIstGroceryView.swift; sourceTree = "<group>"; };
 		F325D50B2D5FED3200360CD4 /* WastageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WastageView.swift; sourceTree = "<group>"; };
 		F325D50D2D5FEE0F00360CD4 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		F35D83CA2D81FD9500B4D1DE /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		F35D83CE2D81FE4600B4D1DE /* GMS.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = GMS.xcdatamodel; sourceTree = "<group>"; };
+		F35D83D02D8203C100B4D1DE /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
+		F35D83D22D820BD100B4D1DE /* User+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		F35D83D32D820BD100B4D1DE /* User+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F35D83CB2D81FD9500B4D1DE /* CoreData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,6 +105,7 @@
 				F325D4E72D5FE02A00360CD4 /* GMSTests */,
 				F325D4F12D5FE02A00360CD4 /* GMSUITests */,
 				F325D4D52D5FE02900360CD4 /* Products */,
+				F35D83C92D81FD9500B4D1DE /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -111,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				F325D4D72D5FE02900360CD4 /* GMSApp.swift */,
+				F35D83CC2D81FE1400B4D1DE /* CoreData */,
 				F325D4DB2D5FE02A00360CD4 /* Assets.xcassets */,
 				F325D4DD2D5FE02A00360CD4 /* Preview Content */,
 				F325D5012D5FE14700360CD4 /* SignUpView.swift */,
@@ -149,6 +162,25 @@
 				F325D4F42D5FE02A00360CD4 /* GMSUITestsLaunchTests.swift */,
 			);
 			path = GMSUITests;
+			sourceTree = "<group>";
+		};
+		F35D83C92D81FD9500B4D1DE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F35D83CA2D81FD9500B4D1DE /* CoreData.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F35D83CC2D81FE1400B4D1DE /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				F35D83D22D820BD100B4D1DE /* User+CoreDataClass.swift */,
+				F35D83D32D820BD100B4D1DE /* User+CoreDataProperties.swift */,
+				F35D83CD2D81FE4600B4D1DE /* GMS.xcdatamodeld */,
+				F35D83D02D8203C100B4D1DE /* CoreDataManager.swift */,
+			);
+			path = CoreData;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -286,10 +318,14 @@
 				F325D5082D5FEA8B00360CD4 /* AddGroceryView.swift in Sources */,
 				F325D50C2D5FED3200360CD4 /* WastageView.swift in Sources */,
 				F325D5042D5FE5E100360CD4 /* LoginView.swift in Sources */,
+				F35D83D42D820BD100B4D1DE /* User+CoreDataClass.swift in Sources */,
+				F35D83D52D820BD100B4D1DE /* User+CoreDataProperties.swift in Sources */,
 				3AF165B22D6D454500177111 /* LandingView.swift in Sources */,
+				F35D83D12D8203C100B4D1DE /* CoreDataManager.swift in Sources */,
 				F325D5062D5FE83500360CD4 /* HomeView.swift in Sources */,
 				F325D50A2D5FEC1800360CD4 /* LIstGroceryView.swift in Sources */,
 				3AF165B42D6D467F00177111 /* Color+Hex.swift in Sources */,
+				F35D83CF2D81FE4600B4D1DE /* GMS.xcdatamodeld in Sources */,
 				F325D4D82D5FE02900360CD4 /* GMSApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -459,6 +495,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -487,6 +524,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -614,6 +652,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		F35D83CD2D81FE4600B4D1DE /* GMS.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				F35D83CE2D81FE4600B4D1DE /* GMS.xcdatamodel */,
+			);
+			currentVersion = F35D83CE2D81FE4600B4D1DE /* GMS.xcdatamodel */;
+			name = GMS.xcdatamodeld;
+			path = "/Users/101414910/Desktop/Grocee-Mobile_iOS/GMS/CoreData/GMS.xcdatamodeld";
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = F325D4CC2D5FE02900360CD4 /* Project object */;
 }

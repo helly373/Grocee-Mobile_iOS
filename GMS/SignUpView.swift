@@ -11,6 +11,7 @@ struct SignUpView: View {
     @State private var navigateToHome = false
     @State private var navigateToLogin = false
     @State private var navigateToForgotPassword = false
+    @State private var errorMessage: String?
 
     var body: some View {
         ZStack {
@@ -51,23 +52,25 @@ struct SignUpView: View {
                     SignUpTextField(title: "Username", icon: "person.fill", text: $username)
                     SignUpTextField(title: "Full Name", icon: "person.text.rectangle.fill", text: $fullName)
                     SignUpTextField(title: "Email", icon: "envelope.fill", text: $email, keyboardType: .emailAddress)
+                        .autocapitalization(.none) // Prevents auto-capitalization
+                        .textInputAutocapitalization(.never) // Ensures the first letter isn't capitalized
+                        .onChange(of: email) { newValue in
+                            email = newValue.lowercased() // Ensures all input is in lowercase
+                        }
+
                     SignUpPasswordField(title: "Password", text: $password, showPassword: $showPassword)
                     SignUpPasswordField(title: "Confirm Password", text: $confirmPassword, showPassword: $showConfirmPassword)
 
-                    // Forgot Password Link
-                    Button(action: {
-                        navigateToForgotPassword = true
-                    }) {
-                        Text("Forgot Password?")
-                            .foregroundColor(Color(hex: "198754"))
-                            .font(.subheadline)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    // Error Message Display
+                    if let errorMessage = errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .font(.footnote)
                     }
+
                     
                     // Create Account Button
-                    Button(action: {
-                        navigateToHome = true
-                    }) {
+                    Button(action: createAccount) {
                         HStack {
                             Image(systemName: "person.badge.plus.fill")
                             Text("Create Account")
@@ -97,13 +100,40 @@ struct SignUpView: View {
                     // Navigation Links (Hidden)
                     NavigationLink(destination: HomePageView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) { EmptyView() }
                     NavigationLink(destination: LoginView().navigationBarBackButtonHidden(true), isActive: $navigateToLogin) { EmptyView() }
-                    NavigationLink(destination: ForgotPasswordView().navigationBarBackButtonHidden(true), isActive: $navigateToForgotPassword) { EmptyView() }
+                    
                 }
             }
             .padding(16)
         }
         .navigationTitle("Sign Up")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    // Save User to Core Data
+    func createAccount() {
+        guard !username.isEmpty, !fullName.isEmpty, !email.isEmpty, !password.isEmpty else {
+            errorMessage = "All fields are required!"
+            return
+        }
+        guard password == confirmPassword else {
+            errorMessage = "Passwords do not match!"
+            return
+        }
+
+        // Check if email already exists in Core Data
+        if CoreDataManager.shared.fetchUser(byEmail: email) != nil {
+            errorMessage = "Email already exists. Try a different one."
+            return
+        }
+
+        // Attempt to save the user
+        let success = CoreDataManager.shared.saveUser(username: username, fullName: fullName, email: email, password: password)
+        
+        if success {
+            navigateToHome = true
+        } else {
+            errorMessage = "Failed to create an account. Try again."
+        }
     }
 }
 
@@ -177,13 +207,6 @@ struct SignUpPasswordField: View {
     }
 }
 
-// Placeholder for Forgot Password View
-struct ForgotPasswordView: View {
-    var body: some View {
-        Text("Forgot Password Page")
-            .navigationTitle("Reset Password")
-    }
-}
 
 // Preview
 struct SignUpView_Previews: PreviewProvider {

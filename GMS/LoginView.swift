@@ -6,7 +6,9 @@ struct LoginView: View {
     @State private var showPassword = false
     @State private var navigateToHome = false
     @State private var navigateToSignUp = false
+    @State private var errorMessage: String?
     @AppStorage("isLoggedIn") private var isLoggedIn: Bool = false  // Ensure this is here
+    @AppStorage("currentUserEmail") private var currentUserEmail: String?  // Add it here
 
     var body: some View {
         ZStack {
@@ -57,7 +59,19 @@ struct LoginView: View {
                             text: $password,
                             showPassword: $showPassword
                         )
+                        .autocapitalization(.none)
+                            .textInputAutocapitalization(.never)
+                            .onChange(of: email) { newValue in
+                                email = newValue.lowercased()
+                            }
                         
+                        // Error Message Display
+                        if let errorMessage = errorMessage {
+                            Text(errorMessage)
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                        }
+
                         // Forgot Password
                         HStack {
                             Spacer()
@@ -68,13 +82,8 @@ struct LoginView: View {
                             .font(.subheadline)
                         }
                         
-                        // Login Button with @AppStorage
-                        Button(action: {
-                            // Simulate successful login
-                            isLoggedIn = true  // Set AppStorage to true
-                            navigateToHome = true
-                            print("Logging in... isLoggedIn set to true") // Debug print
-                        }) {
+                        // Login Button with Core Data Validation
+                        Button(action: login) {
                             HStack {
                                 Image(systemName: "arrow.right.circle.fill")
                                 Text("Login")
@@ -121,9 +130,24 @@ struct LoginView: View {
             }
         )
     }
+
+    // Authenticate User with Core Data
+    func login() {
+        guard !email.isEmpty, !password.isEmpty else {
+            errorMessage = "Both email and password are required!"
+            return
+        }
+
+        guard let user = CoreDataManager.shared.fetchUser(byEmail: email), user.password == password else {
+            errorMessage = "Invalid email or password"
+            return
+        }
+        currentUserEmail = email
+        // Set login state and navigate to home
+        isLoggedIn = true
+        navigateToHome = true
+    }
 }
-
-
 
 // Custom TextField for Login
 struct LoginTextField: View {
@@ -205,3 +229,4 @@ struct LoginView_Previews: PreviewProvider {
         }
     }
 }
+
