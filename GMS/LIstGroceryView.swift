@@ -1,6 +1,7 @@
 import SwiftUI
+import CoreData
 
-// Grocery Item Model with Category
+// Keep the original GroceryItem model as a view model
 struct GroceryItem: Identifiable {
     let id = UUID()
     let name: String
@@ -11,25 +12,34 @@ struct GroceryItem: Identifiable {
     var expiryDate: Date  // Editable expiry date
 }
 
-// Sample Grocery Data with Categories
-let sampleGroceries = [
-    GroceryItem(name: "Milk", quantity: "2", price: "$5.99", category: "Dairy", purchasedDate: Date(), expiryDate: Calendar.current.date(byAdding: .day, value: 7, to: Date())!),
-    GroceryItem(name: "Eggs", quantity: "12", price: "$3.49", category: "Dairy", purchasedDate: Date(), expiryDate: Calendar.current.date(byAdding: .day, value: 14, to: Date())!),
-    GroceryItem(name: "Cheddar Cheese", quantity: "1", price: "$4.29", category: "Dairy", purchasedDate: Date(), expiryDate: Calendar.current.date(byAdding: .day, value: 10, to: Date())!),
-    GroceryItem(name: "Bread", quantity: "1", price: "$2.99", category: "Bakery", purchasedDate: Date(), expiryDate: Calendar.current.date(byAdding: .day, value: 5, to: Date())!),
-    GroceryItem(name: "Bagels", quantity: "6", price: "$3.99", category: "Bakery", purchasedDate: Date(), expiryDate: Calendar.current.date(byAdding: .day, value: 4, to: Date())!),
-    GroceryItem(name: "Apples", quantity: "5", price: "$4.50", category: "Produce", purchasedDate: Date(), expiryDate: Calendar.current.date(byAdding: .day, value: 10, to: Date())!),
-    GroceryItem(name: "Spinach", quantity: "1", price: "$2.99", category: "Produce", purchasedDate: Date(), expiryDate: Calendar.current.date(byAdding: .day, value: 5, to: Date())!)
-]
+// Extension to convert CoreData Grocery to GroceryItem view model
+extension Grocery {
+    func toGroceryItem() -> GroceryItem {
+        return GroceryItem(
+            name: self.name ?? "Unknown",
+            quantity: "\(self.quantity)",
+            price: "$\(String(format: "%.2f", self.price))",
+            category: self.category ?? "Other", // Add a category property to CoreData model
+            purchasedDate: self.purchasedDate ?? Date(),
+            expiryDate: self.expiryDate ?? Date()
+        )
+    }
+}
 
 struct GroceryListView: View {
-    @State private var groceries = sampleGroceries
+    @State private var groceries: [GroceryItem] = []
     @State private var searchText = ""
     @State private var showingEditSheet = false
     @State private var selectedItem: GroceryItem?
     @State private var editedQuantity = ""
     @State private var editedExpiryDate = Date()
     @State private var selectedCategory: String? = nil
+    
+    // Environment object to access CoreDataManager
+    @Environment(\.managedObjectContext) private var viewContext
+    
+    // Initialize with observed object
+    @ObservedObject private var dataManager = CoreDataManager.shared
     
     // Get unique categories from grocery items
     var categories: [String] {
@@ -114,9 +124,7 @@ struct GroceryListView: View {
                                                 }
                                                 
                                                 Button(role: .destructive, action: {
-                                                    if let index = groceries.firstIndex(where: { $0.id == item.id }) {
-                                                        groceries.remove(at: index)
-                                                    }
+                                                    deleteGroceryItem(matching: item)
                                                 }) {
                                                     Label("Delete", systemImage: "trash")
                                                 }
@@ -167,18 +175,78 @@ struct GroceryListView: View {
                 quantity: $editedQuantity,
                 expiryDate: $editedExpiryDate,
                 onSave: { quantity, expiryDate in
-                    if let index = groceries.firstIndex(where: { $0.id == selectedItem?.id }) {
-                        groceries[index].quantity = quantity
-                        groceries[index].expiryDate = expiryDate
-                    }
+                    updateGroceryItem(
+                        matching: selectedItem!,
+                        newQuantity: quantity,
+                        newExpiryDate: expiryDate
+                    )
                     showingEditSheet = false
                 }
             )
         }
+        .onAppear {
+            loadGroceries()
+        }
+    }
+    
+    // Function to load groceries from Core Data
+    private func loadGroceries() {
+        guard let currentUser = dataManager.fetchCurrentUser() else {
+            print("No current user found")
+            return
+        }
+        
+        let coreDataGroceries = dataManager.fetchGroceries(for: currentUser)
+        self.groceries = coreDataGroceries.map { $0.toGroceryItem() }
+    }
+    
+    // Function to delete grocery item
+    private func deleteGroceryItem(matching item: GroceryItem) {
+        guard let currentUser = dataManager.fetchCurrentUser() else { return }
+        
+        let coreDataGroceries = dataManager.fetchGroceries(for: currentUser)
+        
+        // Find matching grocery in Core Data items by name and dates
+        if let matchingGrocery = coreDataGroceries.first(where: {
+            $0.name == item.name &&
+            $0.purchasedDate == item.purchasedDate &&
+            $0.expiryDate == item.expiryDate
+        }) {
+            dataManager.deleteGrocery(matchingGrocery)
+            loadGroceries() // Reload the list
+        }
+    }
+    
+    // Function to update grocery item
+    private func updateGroceryItem(matching item: GroceryItem, newQuantity: String, newExpiryDate: Date) {
+        guard let currentUser = dataManager.fetchCurrentUser() else { return }
+        
+        let coreDataGroceries = dataManager.fetchGroceries(for: currentUser)
+        
+        // Find matching grocery in Core Data items
+        if let matchingGrocery = coreDataGroceries.first(where: {
+            $0.name == item.name &&
+            $0.purchasedDate == item.purchasedDate
+        }) {
+            // Convert the string quantity to Double
+            let quantityDouble = Double(newQuantity) ?? matchingGrocery.quantity
+            
+            dataManager.updateGrocery(
+                grocery: matchingGrocery,
+                name: matchingGrocery.name ?? "",
+                expiryDate: newExpiryDate,
+                price: matchingGrocery.price,
+                purchasedDate: matchingGrocery.purchasedDate ?? Date(),
+                quantity: quantityDouble,
+                unit: matchingGrocery.unit ?? ""
+            )
+            
+            loadGroceries() // Reload the list
+        }
     }
 }
 
-// New struct for Category Header
+// Keep the rest of the UI components unchanged
 struct CategoryHeader: View {
     let title: String
     
@@ -195,7 +263,6 @@ struct CategoryHeader: View {
     }
 }
 
-// New struct for Category Filter Chips
 struct CategoryChip: View {
     let title: String
     let isSelected: Bool
@@ -346,10 +413,13 @@ struct ItemInfoView: View {
     }
 }
 
+
+
 struct GroceryListView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             GroceryListView()
+                .environment(\.managedObjectContext, CoreDataManager.shared.context)
         }
     }
 }

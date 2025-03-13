@@ -97,6 +97,71 @@ class CoreDataManager: ObservableObject {
             return false
         }
     }
+    
+    // MARK: - Grocery CRUD Operations
+
+        /// Save a grocery item linked to a specific user
+    func addGrocery(for user: User, name: String, expiryDate: Date, price: Float, purchasedDate: Date, quantity: Double, unit: String, category: String) {
+            let grocery = Grocery(context: context)
+            grocery.groceryid = UUID()
+            grocery.name = name
+            grocery.expiryDate = expiryDate
+            grocery.price = price
+            grocery.purchasedDate = purchasedDate
+            grocery.quantity = quantity
+            grocery.unit = unit
+            grocery.category = category
+            grocery.user = user // Link grocery to the user
+            
+            do {
+                try context.save()
+                print("Grocery saved successfully!")
+            } catch {
+                print("Failed to save grocery: \(error)")
+            }
+        }
+        
+        /// Fetch all groceries for a specific user
+        func fetchGroceries(for user: User) -> [Grocery] {
+            let request: NSFetchRequest<Grocery> = Grocery.fetchRequest()
+            request.predicate = NSPredicate(format: "user == %@", user) // Filter by user
+
+            do {
+                return try context.fetch(request)
+            } catch {
+                print("Error fetching groceries: \(error)")
+                return []
+            }
+        }
+        
+        /// Update an existing grocery item
+        func updateGrocery(grocery: Grocery, name: String, expiryDate: Date, price: Float, purchasedDate: Date, quantity: Double, unit: String) {
+            grocery.name = name
+            grocery.expiryDate = expiryDate
+            grocery.price = price
+            grocery.purchasedDate = purchasedDate
+            grocery.quantity = quantity
+            grocery.unit = unit
+
+            do {
+                try context.save()
+                print("Grocery updated successfully!")
+            } catch {
+                print("Failed to update grocery: \(error)")
+            }
+        }
+        
+        /// Delete a grocery item
+        func deleteGrocery(_ grocery: Grocery) {
+            context.delete(grocery)
+            
+            do {
+                try context.save()
+                print("Grocery deleted successfully!")
+            } catch {
+                print("Failed to delete grocery: \(error)")
+            }
+        }
 
 
 }
