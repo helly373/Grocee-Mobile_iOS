@@ -162,6 +162,21 @@ class CoreDataManager: ObservableObject {
                 print("Failed to delete grocery: \(error)")
             }
         }
+    /// Fetch groceries sorted by soonest expiry date
+    func fetchSoonestExpiringGroceries(for user: User, limit: Int = 5) -> [Grocery] {
+        let request: NSFetchRequest<Grocery> = Grocery.fetchRequest()
+        request.predicate = NSPredicate(format: "user == %@", user)
+        request.sortDescriptors = [NSSortDescriptor(key: "expiryDate", ascending: true)]
+        request.fetchLimit = limit  // Fetch only the top N expiring items
+
+        do {
+            return try context.fetch(request)
+        } catch {
+            print("Error fetching soonest expiring groceries: \(error)")
+            return []
+        }
+    }
+
 
 
 }

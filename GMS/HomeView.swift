@@ -1,31 +1,26 @@
 import SwiftUI
 import Charts
 
-// Sample data models for demonstration
+// Data models for demonstration
 struct ExpiringItem: Identifiable {
     let id = UUID()
     let name: String
     let expirationDate: Date
-    let icon: String // Added icon property for visual representation
-    let color: Color // Added color property for visual distinction
+    let icon: String  // Visual representation
+    let color: Color  // Visual distinction
 }
 
 struct CategoryWastage: Identifiable {
     let id = UUID()
     let category: String
     let wastageAmount: Double
-    let icon: String // Added icon property
+    let icon: String  // Icon for the category
 }
 
-// Home page view that displays the top expiring items and wastage graph
+// Home page view displaying expiring items and the wastage graph
 struct HomePageView: View {
-    // Sample data for expiring items and wastage with added visual properties
-    let expiringItems: [ExpiringItem] = [
-        ExpiringItem(name: "Yogurt", expirationDate: Date().addingTimeInterval(3600 * 24 * 1), icon: "cup.and.saucer.fill", color: .blue),
-        ExpiringItem(name: "Milk", expirationDate: Date().addingTimeInterval(3600 * 24 * 2), icon: "drop.fill", color: .white),
-        ExpiringItem(name: "Bread", expirationDate: Date().addingTimeInterval(3600 * 24 * 3), icon: "square.fill", color: .brown),
-        ExpiringItem(name: "Cheese", expirationDate: Date().addingTimeInterval(3600 * 24 * 5), icon: "circle.fill", color: .yellow)
-    ]
+    // Replace static data with dynamic data fetched from Core Data
+    @State private var expiringItems: [ExpiringItem] = []
     
     let wastageData: [CategoryWastage] = [
         CategoryWastage(category: "Dairy", wastageAmount: 10, icon: "drop.fill"),
@@ -33,9 +28,11 @@ struct HomePageView: View {
         CategoryWastage(category: "Produce", wastageAmount: 8, icon: "leaf.fill")
     ]
     
+    @ObservedObject var coreDataManager = CoreDataManager.shared
+    
     @State private var showProfile = false
-    @State private var animateChart = false // For chart animation
-    @State private var showItems = false // For item list animation
+    @State private var animateChart = false   // For chart animation
+    @State private var showItems = false      // For item list animation
 
     var body: some View {
         NavigationStack {
@@ -50,69 +47,73 @@ struct HomePageView: View {
                             .font(.headline)
                             .padding(.horizontal)
                         
-                        ForEach(expiringItems.sorted(by: { $0.expirationDate < $1.expirationDate }).prefix(3).enumerated().map({ i, item in
-                            (i, item)
-                        }), id: \.1.id) { index, item in
-                            HStack {
-                                Circle()
-                                    .fill(item.color)
-                                    .frame(width: 40, height: 40)
-                                    .overlay(
-                                        Image(systemName: item.icon)
-                                            .foregroundColor(.white)
-                                    )
-                                
-                                VStack(alignment: .leading) {
-                                    Text(item.name)
-                                        .font(.subheadline)
-                                        .bold()
-                                    
-                                    // Calculate days remaining
-                                    let days = Calendar.current.dateComponents([.day], from: Date(), to: item.expirationDate).day ?? 0
-                                    Text("\(days) day\(days == 1 ? "" : "s") remaining")
-                                        .font(.caption)
-                                        .foregroundColor(days <= 2 ? .red : .gray)
-                                }
-                                
-                                Spacer()
-                                
-                                // Circular progress indicator
-                                ZStack {
-                                    // Calculate days remaining FIRST and store it in a local constant
-                                    let days = Calendar.current.dateComponents([.day], from: Date(), to: item.expirationDate).day ?? 0
-                                    
+                        if expiringItems.isEmpty {
+                            Text("No expiring items found")
+                                .padding(.horizontal)
+                                .foregroundColor(.gray)
+                        } else {
+                            ForEach(expiringItems.sorted(by: { $0.expirationDate < $1.expirationDate }).prefix(3).enumerated().map({ i, item in (i, item) }), id: \.1.id) { index, item in
+                                HStack {
                                     Circle()
-                                        .stroke(Color.gray.opacity(0.2), lineWidth: 4)
+                                        .fill(item.color)
                                         .frame(width: 40, height: 40)
-                                    
-                                    Circle()
-                                        .trim(from: 0, to: min(1.0, Double(5 - days) / 5.0))
-                                        .stroke(
-                                            days <= 1 ? Color.red :
-                                            days <= 3 ? Color.orange : Color.green,
-                                            lineWidth: 4
+                                        .overlay(
+                                            Image(systemName: item.icon)
+                                                .foregroundColor(.white)
                                         )
-                                        .frame(width: 40, height: 40)
-                                        .rotationEffect(.degrees(-90))
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text(item.name)
+                                            .font(.subheadline)
+                                            .bold()
+                                        
+                                        // Calculate days remaining
+                                        let days = Calendar.current.dateComponents([.day], from: Date(), to: item.expirationDate).day ?? 0
+                                        Text("\(days) day\(days == 1 ? "" : "s") remaining")
+                                            .font(.caption)
+                                            .foregroundColor(days <= 2 ? .red : .gray)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    // Circular progress indicator
+                                    ZStack {
+                                        // Store days remaining in a local constant
+                                        let days = Calendar.current.dateComponents([.day], from: Date(), to: item.expirationDate).day ?? 0
+                                        
+                                        Circle()
+                                            .stroke(Color.gray.opacity(0.2), lineWidth: 4)
+                                            .frame(width: 40, height: 40)
+                                        
+                                        Circle()
+                                            .trim(from: 0, to: min(1.0, Double(5 - days) / 5.0))
+                                            .stroke(
+                                                days <= 1 ? Color.red :
+                                                days <= 3 ? Color.orange : Color.green,
+                                                lineWidth: 4
+                                            )
+                                            .frame(width: 40, height: 40)
+                                            .rotationEffect(.degrees(-90))
+                                    }
                                 }
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color(.systemBackground))
+                                        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                                )
+                                .padding(.horizontal)
+                                .offset(x: showItems ? 0 : 300)
+                                .animation(
+                                    .spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0)
+                                    .delay(Double(index) * 0.1),
+                                    value: showItems
+                                )
                             }
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color(.systemBackground))
-                                    .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-                            )
-                            .padding(.horizontal)
-                            .offset(x: showItems ? 0 : 300)
-                            .animation(
-                                .spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0)
-                                .delay(Double(index) * 0.1),
-                                value: showItems
-                            )
                         }
                     }
                     
-                    // Graphical representation of wastage by category with animation
+                    // Food Waste Tracker graph with animation
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Food Waste Tracker")
                             .font(.headline)
@@ -139,7 +140,7 @@ struct HomePageView: View {
                         .animation(.easeOut(duration: 1.0), value: animateChart)
                     }
                     
-                    // Food Savings Tips Section (New)
+                    // Food Savings Tips Section
                     VStack(alignment: .leading, spacing: 15) {
                         Text("Storage Tips")
                             .font(.headline)
@@ -174,7 +175,6 @@ struct HomePageView: View {
                     
                     Spacer()
                 }
-                
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
@@ -194,7 +194,7 @@ struct HomePageView: View {
                     }
                 }
                 
-                // Trailing toolbar for the profile button
+                // Trailing toolbar for profile button
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showProfile = true
@@ -210,6 +210,8 @@ struct HomePageView: View {
                 ProfileView()
             }
             .onAppear {
+                fetchSoonestExpiringGroceries()
+                
                 // Start animations when view appears
                 withAnimation(.easeIn(duration: 0.6)) {
                     showItems = true
@@ -220,6 +222,21 @@ struct HomePageView: View {
                         animateChart = true
                     }
                 }
+            }
+        }
+    }
+    
+    // Function to fetch soonest expiring groceries dynamically from Core Data
+    private func fetchSoonestExpiringGroceries() {
+        if let user = coreDataManager.fetchCurrentUser() {
+            let groceries = coreDataManager.fetchSoonestExpiringGroceries(for: user, limit: 5)
+            self.expiringItems = groceries.map { grocery in
+                ExpiringItem(
+                    name: grocery.name ?? "Unknown",
+                    expirationDate: grocery.expiryDate ?? Date(),
+                    icon: "cart.fill",  // Customize icon based on category if needed
+                    color: .red         // Customize color accordingly
+                )
             }
         }
     }
@@ -250,8 +267,8 @@ struct AnimatedHeroHeaderView: View {
                     animateGradient.toggle()
                 }
             }
-
-            // Decorative food items scattered in the background
+            
+            // Decorative food items in the background
             Group {
                 Image(systemName: "apple.logo")
                     .resizable()
@@ -292,7 +309,7 @@ struct AnimatedHeroHeaderView: View {
             .onAppear {
                 animateIcon = true
             }
-
+            
             // Foreground content with animation
             VStack(spacing: 12) {
                 Image(systemName: "leaf.arrow.circlepath")
@@ -301,15 +318,9 @@ struct AnimatedHeroHeaderView: View {
                     .frame(width: 60, height: 60)
                     .foregroundColor(.white)
                     .scaleEffect(animateIcon ? 1.1 : 1.0)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.6, blendDuration: 0).repeatForever(autoreverses: true), value: animateIcon)
-//                
-//                Text("FreshKeeper")
-//                    .font(.largeTitle)
-//                    .fontWeight(.bold)
-//                    .foregroundColor(.white)
-//                    .opacity(showTitle ? 1 : 0)
-//                    .offset(y: showTitle ? 0 : 20)
-//                
+                    .animation(.spring(response: 0.5, dampingFraction: 0.6, blendDuration: 0)
+                        .repeatForever(autoreverses: true), value: animateIcon)
+                
                 Text("Reduce waste, save money")
                     .font(.headline)
                     .foregroundColor(.white.opacity(0.9))
@@ -320,7 +331,6 @@ struct AnimatedHeroHeaderView: View {
                 withAnimation(.easeOut(duration: 0.7)) {
                     showTitle = true
                 }
-                
                 withAnimation(.easeOut(duration: 0.7).delay(0.3)) {
                     showSubtitle = true
                 }
@@ -370,7 +380,6 @@ struct FoodTipCard: View {
     }
 }
 
-
 struct MainTabView: View {
     @State private var selectedTab = 0
     
@@ -382,21 +391,21 @@ struct MainTabView: View {
                 }
                 .tag(0)
             
-            // Use your existing AddGroceryView from another file
+            // Your existing AddGroceryView
             AddGroceryView()
                 .tabItem {
                     Label("Add", systemImage: "plus.circle.fill")
                 }
                 .tag(1)
             
-            // Use your existing GroceryListView from another file
+            // Your existing GroceryListView
             GroceryListView()
                 .tabItem {
                     Label("Inventory", systemImage: "list.bullet.circle.fill")
                 }
                 .tag(2)
             
-            // Use your existing WastageView from another file
+            // Your existing WastageView
             WastageView()
                 .tabItem {
                     Label("Insights", systemImage: "chart.pie.fill")

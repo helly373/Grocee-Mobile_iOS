@@ -98,7 +98,7 @@ struct SignUpView: View {
                     .padding(.top, 4)
                     
                     // Navigation Links (Hidden)
-                    NavigationLink(destination: HomePageView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) { EmptyView() }
+                    NavigationLink(destination: LoginView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) { EmptyView() }
                     NavigationLink(destination: LoginView().navigationBarBackButtonHidden(true), isActive: $navigateToLogin) { EmptyView() }
                     
                 }
