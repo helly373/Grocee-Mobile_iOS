@@ -285,6 +285,30 @@ struct CategoryChip: View {
     }
 }
 
+//struct EditGrocerySheet: View {
+//    let item: GroceryItem?
+//    @Binding var quantity: String
+//    @Binding var expiryDate: Date
+//    let onSave: (String, Date) -> Void
+//    @Environment(\.dismiss) var dismiss
+//    
+//    var body: some View {
+//        NavigationView {
+//            Form {
+//                Section(header: Text("Edit Details")) {
+//                    TextField("Quantity", text: $quantity)
+//                        .keyboardType(.numberPad)
+//                    DatePicker("Expiry Date", selection: $expiryDate, displayedComponents: .date)
+//                }
+//            }
+//            .navigationTitle("Edit \(item?.name ?? "Item")")
+//            .navigationBarItems(
+//                leading: Button("Cancel") { dismiss() },
+//                trailing: Button("Save") { onSave(quantity, expiryDate) }
+//            )
+//        }
+//    }
+//}
 struct EditGrocerySheet: View {
     let item: GroceryItem?
     @Binding var quantity: String
@@ -292,19 +316,49 @@ struct EditGrocerySheet: View {
     let onSave: (String, Date) -> Void
     @Environment(\.dismiss) var dismiss
     
+    // Convert the current quantity to Double
+    var currentQuantity: Double {
+        return Double(quantity) ?? 0.0
+    }
+    
+    // Store the original quantity so that each decrement subtracts 25% of it.
+    @State private var originalQuantity: Double? = nil
+    
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("Edit Details")) {
-                    TextField("Quantity", text: $quantity)
-                        .keyboardType(.numberPad)
-                    DatePicker("Expiry Date", selection: $expiryDate, displayedComponents: .date)
+                    // Display current quantity and a button to decrement it
+                    HStack {
+                        Text("Quantity:")
+                        Spacer()
+                        Text("\(currentQuantity, specifier: "%.2f")")
+                        Button(action: {
+                            // Set originalQuantity on first decrement if not already set
+                            if originalQuantity == nil {
+                                originalQuantity = currentQuantity
+                            }
+                            // Calculate 25% of the original quantity (or current if original isn't set)
+                            let base = originalQuantity ?? currentQuantity
+                            let decrement = base * 0.25
+                            let newQuantity = currentQuantity - decrement
+                            // Ensure quantity does not go below zero
+                            quantity = String(format: "%.2f", max(newQuantity, 0))
+                        }) {
+                            Text("Decrease by 25%")
+                        }
+                    }
+                    
+                    // DatePicker for expiry date that only allows dates from today forward
+                    DatePicker("Expiry Date", selection: $expiryDate, in: Date()..., displayedComponents: .date)
                 }
             }
             .navigationTitle("Edit \(item?.name ?? "Item")")
             .navigationBarItems(
                 leading: Button("Cancel") { dismiss() },
-                trailing: Button("Save") { onSave(quantity, expiryDate) }
+                trailing: Button("Save") {
+                    onSave(quantity, expiryDate)
+                }
             )
         }
     }
