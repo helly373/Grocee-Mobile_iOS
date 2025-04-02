@@ -101,7 +101,17 @@ class CoreDataManager: ObservableObject {
     // MARK: - Grocery CRUD Operations
 
         /// Save a grocery item linked to a specific user
-    func addGrocery(for user: User, name: String, expiryDate: Date, price: Float, purchasedDate: Date, quantity: Double, unit: String, category: String) {
+    func addGrocery(
+            for user: User,
+            name: String,
+            expiryDate: Date,
+            price: Float,
+            purchasedDate: Date,
+            quantity: Double,
+            unit: String,
+            category: String,
+            isWasted: Bool = false
+        ) {
             let grocery = Grocery(context: context)
             grocery.groceryid = UUID()
             grocery.name = name
@@ -112,6 +122,12 @@ class CoreDataManager: ObservableObject {
             grocery.unit = unit
             grocery.category = category
             grocery.user = user // Link grocery to the user
+            
+            // New wastage properties
+            grocery.isWasted = isWasted
+            if isWasted {
+                grocery.wastedDate = Date()
+            }
             
             do {
                 try context.save()
@@ -130,6 +146,22 @@ class CoreDataManager: ObservableObject {
                 return try context.fetch(request)
             } catch {
                 print("Error fetching groceries: \(error)")
+                return []
+            }
+        }
+    
+    // MARK: - Fetch active (non-wasted) groceries
+        func fetchActiveGroceries(for user: User) -> [Grocery] {
+            let request: NSFetchRequest<Grocery> = Grocery.fetchRequest()
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "user == %@", user),
+                NSPredicate(format: "isWasted == NO")
+            ])
+            
+            do {
+                return try context.fetch(request)
+            } catch {
+                print("Error fetching active groceries: \(error)")
                 return []
             }
         }
@@ -177,7 +209,123 @@ class CoreDataManager: ObservableObject {
         }
     }
 
-
+    func fetchWastedGroceries(for user: User) -> [Grocery] {
+            let request: NSFetchRequest<Grocery> = Grocery.fetchRequest()
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "user == %@", user),
+                NSPredicate(format: "isWasted == YES")
+            ])
+            
+            // Sort by waste date (newest first)
+            request.sortDescriptors = [NSSortDescriptor(key: "wastedDate", ascending: false)]
+            
+            do {
+                return try context.fetch(request)
+            } catch {
+                print("Error fetching wasted groceries: \(error)")
+                return []
+            }
+        }
+        
+        // MARK: - Mark a grocery item as wasted
+        func markAsWasted(grocery: Grocery) {
+            grocery.isWasted = true
+            grocery.wastedDate = Date()
+            
+            do {
+                try context.save()
+                print("Grocery marked as wasted successfully!")
+            } catch {
+                print("Failed to mark grocery as wasted: \(error)")
+            }
+        }
+        
+        // MARK: - Check for expired groceries and mark them as wasted
+        func checkForExpiredGroceries(for user: User) -> Int {
+            let today = Date()
+            let activeGroceries = fetchActiveGroceries(for: user)
+            var expiredCount = 0
+            
+            for grocery in activeGroceries {
+                if let expiryDate = grocery.expiryDate, expiryDate < today {
+                    markAsWasted(grocery: grocery)
+                    expiredCount += 1
+                }
+            }
+            
+            return expiredCount
+        }
+        
+        // MARK: - Get wastage statistics
+        func getWastageStatistics(for user: User) -> (total: Int, thisMonth: Int, thisWeek: Int) {
+            let wastedItems = fetchWastedGroceries(for: user)
+            let currentDate = Date()
+            let calendar = Calendar.current
+            
+            // This month
+            let thisMonthItems = wastedItems.filter { grocery in
+                guard let wastedDate = grocery.wastedDate else { return false }
+                return calendar.isDate(wastedDate, equalTo: currentDate, toGranularity: .month)
+            }
+            
+            // This week
+            let thisWeekItems = wastedItems.filter { grocery in
+                guard let wastedDate = grocery.wastedDate else { return false }
+                return calendar.isDate(wastedDate, equalTo: currentDate, toGranularity: .weekOfYear)
+            }
+            
+            return (wastedItems.count, thisMonthItems.count, thisWeekItems.count)
+        }
+        
+        // MARK: - Get wastage value (total cost of wasted items)
+        func getWastageValue(for user: User, period: WastageTimePeriod = .allTime) -> Float {
+            let wastedItems = fetchWastedGroceries(for: user)
+            let currentDate = Date()
+            let calendar = Calendar.current
+            
+            let filteredItems: [Grocery]
+            
+            switch period {
+            case .thisWeek:
+                filteredItems = wastedItems.filter { grocery in
+                    guard let wastedDate = grocery.wastedDate else { return false }
+                    return calendar.isDate(wastedDate, equalTo: currentDate, toGranularity: .weekOfYear)
+                }
+            case .thisMonth:
+                filteredItems = wastedItems.filter { grocery in
+                    guard let wastedDate = grocery.wastedDate else { return false }
+                    return calendar.isDate(wastedDate, equalTo: currentDate, toGranularity: .month)
+                }
+            case .thisYear:
+                filteredItems = wastedItems.filter { grocery in
+                    guard let wastedDate = grocery.wastedDate else { return false }
+                    return calendar.isDate(wastedDate, equalTo: currentDate, toGranularity: .year)
+                }
+            case .allTime:
+                filteredItems = wastedItems
+            }
+            
+            // Sum up the total cost
+            return filteredItems.reduce(0) { $0 + $1.price }
+        }
+        
+        // MARK: - Save context helper
+        func saveContext() {
+            if context.hasChanges {
+                do {
+                    try context.save()
+                } catch {
+                    print("Error saving context: \(error)")
+                }
+            }
+        }
 
 }
 
+// Time period enum for wastage statistics
+enum WastageTimePeriod {
+    case thisWeek
+    case thisMonth
+    case thisYear
+    case allTime
+}

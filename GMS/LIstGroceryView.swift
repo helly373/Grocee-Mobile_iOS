@@ -10,18 +10,27 @@ struct GroceryItem: Identifiable {
     let category: String  // Added category property
     let purchasedDate: Date
     var expiryDate: Date  // Editable expiry date
+    let isExpiringSoon: Bool // Flag for items expiring soon
 }
 
 // Extension to convert CoreData Grocery to GroceryItem view model
 extension Grocery {
     func toGroceryItem() -> GroceryItem {
+        // Calculate if the item is expiring soon (within 3 days)
+        let isExpiringSoon = if let expiryDate = self.expiryDate {
+            Calendar.current.dateComponents([.day], from: Date(), to: expiryDate).day ?? 0 <= 3
+        } else {
+            false
+        }
+        
         return GroceryItem(
             name: self.name ?? "Unknown",
             quantity: "\(self.quantity)",
             price: "$\(String(format: "%.2f", self.price))",
-            category: self.category ?? "Other", // Add a category property to CoreData model
+            category: self.category ?? "Other",
             purchasedDate: self.purchasedDate ?? Date(),
-            expiryDate: self.expiryDate ?? Date()
+            expiryDate: self.expiryDate ?? Date(),
+            isExpiringSoon: isExpiringSoon
         )
     }
 }
@@ -34,6 +43,8 @@ struct GroceryListView: View {
     @State private var editedQuantity = ""
     @State private var editedExpiryDate = Date()
     @State private var selectedCategory: String? = nil
+    @State private var showingExpiredAlert = false
+    @State private var expiredItemsCount = 0
     
     // Environment object to access CoreDataManager
     @Environment(\.managedObjectContext) private var viewContext
@@ -106,6 +117,34 @@ struct GroceryListView: View {
                     .padding(.horizontal)
                 }
                 
+                // Show expiring soon banner if items are expiring
+                if groceries.contains(where: { $0.isExpiringSoon }) {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.white)
+                        Text("Some items are expiring soon!")
+                            .foregroundColor(.white)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        Spacer()
+                        Button(action: {
+                            // Scroll to expiring items or highlight them
+                        }) {
+                            Text("View")
+                                .font(.caption)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(Color.white.opacity(0.2))
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                    }
+                    .padding()
+                    .background(Color(hex: "FFC107"))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                }
+                
                 ScrollView {
                     LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
                         ForEach(filteredGroceries.keys.sorted(), id: \.self) { category in
@@ -121,6 +160,12 @@ struct GroceryListView: View {
                                                     showingEditSheet = true
                                                 }) {
                                                     Label("Edit", systemImage: "pencil")
+                                                }
+                                                
+                                                Button(action: {
+                                                    markAsWasted(matching: item)
+                                                }) {
+                                                    Label("Mark as Wasted", systemImage: "trash.circle")
                                                 }
                                                 
                                                 Button(role: .destructive, action: {
@@ -163,6 +208,10 @@ struct GroceryListView: View {
                     }) {
                         Label("Sort by Category", systemImage: "folder")
                     }
+                    Divider()
+                    Button(action: checkForExpiredItems) {
+                        Label("Check for Expired Items", systemImage: "clock.arrow.circlepath")
+                    }
                 } label: {
                     Image(systemName: "slider.horizontal.3")
                         .foregroundColor(Color(hex: "0D6EFD"))
@@ -184,27 +233,78 @@ struct GroceryListView: View {
                 }
             )
         }
+        .alert("Expired Items Detected", isPresented: $showingExpiredAlert) {
+            Button("View Wastage", role: .none) {
+                // Navigate to wastage view - you would need to add this navigation
+            }
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("\(expiredItemsCount) item(s) have expired and been moved to wastage.")
+        }
         .onAppear {
+            checkForExpiredItems()
+            loadGroceries()
+        }
+        .refreshable {
+            checkForExpiredItems()
             loadGroceries()
         }
     }
     
-    // Function to load groceries from Core Data
+    // Function to load groceries from Core Data - UPDATED to use fetchActiveGroceries
     private func loadGroceries() {
         guard let currentUser = dataManager.fetchCurrentUser() else {
             print("No current user found")
             return
         }
         
-        let coreDataGroceries = dataManager.fetchGroceries(for: currentUser)
+        // Use fetchActiveGroceries instead of fetchGroceries to get only non-wasted items
+        let coreDataGroceries = dataManager.fetchActiveGroceries(for: currentUser)
         self.groceries = coreDataGroceries.map { $0.toGroceryItem() }
+    }
+    
+    // Function to check for expired items and move them to wastage
+    private func checkForExpiredItems() {
+        guard let currentUser = dataManager.fetchCurrentUser() else { return }
+        
+        // Check for expired groceries and mark them as wasted
+        let count = dataManager.checkForExpiredGroceries(for: currentUser)
+        
+        if count > 0 {
+            // Set the count for the alert
+            expiredItemsCount = count
+            showingExpiredAlert = true
+            
+            // Refresh the grocery list
+            loadGroceries()
+        }
+    }
+    
+    // Function to manually mark an item as wasted
+    private func markAsWasted(matching item: GroceryItem) {
+        guard let currentUser = dataManager.fetchCurrentUser() else { return }
+        
+        let coreDataGroceries = dataManager.fetchActiveGroceries(for: currentUser)
+        
+        // Find matching grocery in Core Data items
+        if let matchingGrocery = coreDataGroceries.first(where: {
+            $0.name == item.name &&
+            $0.purchasedDate == item.purchasedDate &&
+            $0.expiryDate == item.expiryDate
+        }) {
+            // Mark as wasted
+            dataManager.markAsWasted(grocery: matchingGrocery)
+            
+            // Reload the list to remove the wasted item
+            loadGroceries()
+        }
     }
     
     // Function to delete grocery item
     private func deleteGroceryItem(matching item: GroceryItem) {
         guard let currentUser = dataManager.fetchCurrentUser() else { return }
         
-        let coreDataGroceries = dataManager.fetchGroceries(for: currentUser)
+        let coreDataGroceries = dataManager.fetchActiveGroceries(for: currentUser)
         
         // Find matching grocery in Core Data items by name and dates
         if let matchingGrocery = coreDataGroceries.first(where: {
@@ -221,7 +321,7 @@ struct GroceryListView: View {
     private func updateGroceryItem(matching item: GroceryItem, newQuantity: String, newExpiryDate: Date) {
         guard let currentUser = dataManager.fetchCurrentUser() else { return }
         
-        let coreDataGroceries = dataManager.fetchGroceries(for: currentUser)
+        let coreDataGroceries = dataManager.fetchActiveGroceries(for: currentUser)
         
         // Find matching grocery in Core Data items
         if let matchingGrocery = coreDataGroceries.first(where: {
@@ -241,10 +341,18 @@ struct GroceryListView: View {
                 unit: matchingGrocery.unit ?? ""
             )
             
+            // Check if the new expiry date is in the past
+            if newExpiryDate < Date() {
+                // Mark as wasted if expired
+                dataManager.markAsWasted(grocery: matchingGrocery)
+            }
+            
             loadGroceries() // Reload the list
         }
     }
 }
+
+// Keep the rest of the UI components unchanged - other view structures are retained as is
 
 // Keep the rest of the UI components unchanged
 struct CategoryHeader: View {
